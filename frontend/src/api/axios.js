@@ -1,17 +1,22 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "/api",
+  baseURL: import.meta.env.VITE_API_URL
+    ? `${import.meta.env.VITE_API_URL}/api`
+    : "/api",
 });
 
 api.interceptors.request.use((config) => {
   const stored = localStorage.getItem("hotelUser");
+
   if (stored) {
     const user = JSON.parse(stored);
+
     if (user?.token) {
       config.headers.Authorization = `Bearer ${user.token}`;
     }
   }
+
   return config;
 });
 
@@ -22,6 +27,7 @@ api.interceptors.response.use(
       localStorage.removeItem("hotelUser");
       window.location.href = "/login";
     }
+
     return Promise.reject(err);
   }
 );
